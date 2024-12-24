@@ -21,7 +21,7 @@ jobs:
         - name: Clone private data storage
           run: |
             git clone https://${{ secrets.PROFILE_URL }}:${{secrets.PUBLIC_PAT}}@github.com/${{ secrets.BAGS }}.git bags_repo
-        
+
         - name: Clone private logs storage
           run: |
             git clone https://${{ secrets.PROFILE_URL }}:${{secrets.PUBLIC_PAT}}@github.com/${{ secrets.DATA_STORAGE }}.git data_storage_repo
@@ -29,12 +29,12 @@ jobs:
         - name: Install Node.js dependencies 
           run: npm install axios csv-parser dotenv shopify-api-node fs
         
-        # - name: Update products
-        #   run: node /home/runner/work/duplicate_checker/duplicate_checker/duplicate_finder.js
-        #   env:
-        #       SHOP: ${{ secrets.SHOP }}
-        #       SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
-        #       IN_FILE: 'bags_repo/clean_data/existing_skus.csv'
-        #       OUT_FOLDER: 'data_storage_repo/bags/'
+        - name: Update products
+          run: node /home/runner/work/duplicate_checker/duplicate_checker/duplicate_finder.js
+          env:
+              SHOP: ${{ secrets.SHOP }}
+              SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+              IN_FILE: 'bags_repo/clean_data/existing_skus.csv'
+              OUT_FOLDER: 'data_storage_repo/bags/'
               
   
