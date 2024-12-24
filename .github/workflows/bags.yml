@@ -36,5 +36,17 @@ jobs:
               SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
               IN_FILE: 'bags_repo/clean_data/existing_skus.csv'
               OUT_FOLDER: 'data_storage_repo/bags/'
-              
+        
+        - name: Commit changes from update.py
+          run: |
+            cd data_storage_repo
+            git config --local user.name "GitHub Action"
+            git config --local user.email "action@github.com"
+            git pull origin master --no-edit
+            git add .
+
+            # Commit changes if there are any
+            git diff --cached --quiet || git commit -m "Commit changes from update.py"
+
+            git push
   

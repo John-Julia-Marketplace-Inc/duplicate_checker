@@ -1,7 +1,7 @@
 const axios = require('axios');
 const csv = require('csv-parser');
 const Shopify = require('shopify-api-node');
-require('dotenv').config();
+// require('dotenv').config();
 const stream = require('stream');
 const { promisify } = require('util');
 const fs = require('fs');
@@ -55,30 +55,6 @@ const fetchProductBySku = async (sku) => {
         return [];
     }
 };
-
-// Determine the best product to retain
-// const selectBestProduct = (products) => {
-//     return products.reduce((best, product) => {
-//         const isMoreComplete =
-//             product.title && product.descriptionHtml &&
-//             product.variants.length > 0;
-
-//         const isActive = !!product.publishedAt;
-
-//         // Compare by completeness and active status
-//         if (isMoreComplete || isActive) {
-//             return product;
-//         }
-
-//         // If neither is more complete or active, prefer the most recently updated product
-//         if (new Date(product.publishedAt) < new Date(best.publishedAt)) {
-//             return product;
-//         }
-
-//         return best;
-//     }, products[0]);
-// };
-
 
 const selectBestProduct = (products) => {
     return products.reduce((best, product) => {
@@ -193,4 +169,4 @@ async function fetch_csv_products(link) {
 }
 
 // Start the process
-processDuplicates('data2/duplicates_bags_skus.csv');
+processDuplicates(`${process.env.OUT_FOLDER}/duplicate_skus.csv`);
