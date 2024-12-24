@@ -5,7 +5,6 @@ const Shopify = require('shopify-api-node');
 const stream = require('stream');
 const { promisify } = require('util');
 const fs = require('fs');
-const path = require('path');
 
 const logFile = fs.createWriteStream(`${process.env.OUT_FOLDER}/logs.log`, { flags: 'a' });
 const pipeline = promisify(stream.pipeline);
@@ -14,24 +13,6 @@ const shopify = new Shopify({
     shopName: process.env.SHOP,
     accessToken: process.env.SHOPIFY_ACCESS_TOKEN,
 });
-
-function logMessage(message) {
-    const timestamp = new Date().toISOString();
-    logFile.write(`[${timestamp}] ${message}\n`);
-}
-
-// Check and create output file or folder
-function ensureOutputFile(outputFilePath) {
-    const outputDir = path.dirname(outputFilePath);
-    if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
-        logMessage(`Output directory created: ${outputDir}`);
-    }
-    if (!fs.existsSync(outputFilePath)) {
-        fs.writeFileSync(outputFilePath, '');
-        logMessage(`Output file created: ${outputFilePath}`);
-    }
-}
 
 async function fetch_csv_products(link) {
     const products = [];
@@ -48,13 +29,14 @@ async function fetch_csv_products(link) {
             })
         );
     } catch (error) {
-        logMessage(`Error fetching products: ${error}`);
+        logFile(`Error fetching products: ${error}`);
     }
     return products;
 }
 
 const fetchProductBySku = async (sku) => {
     try {
+        // GraphQL query to fetch products by SKU
         const query = `
         {
             products(first: 100, query: "sku:${sku}") {
@@ -66,6 +48,7 @@ const fetchProductBySku = async (sku) => {
                             edges {
                                 node {
                                     sku
+
                                 }
                             }
                         }
@@ -77,7 +60,7 @@ const fetchProductBySku = async (sku) => {
         const response = await shopify.graphql(query);
 
         if (response.errors) {
-            logMessage(`GraphQL Errors: ${JSON.stringify(response.errors)}`);
+            console.error('GraphQL Errors:', response.errors);
             return 0; 
         }
 
@@ -87,10 +70,14 @@ const fetchProductBySku = async (sku) => {
             return 0;
         }
 
+        // Count how many products with this SKU exist
         let productIdCount = 0;
 
         products.forEach((product) => {
+            // Check if the product's variants contain the matching SKU
             const hasMatchingSku = product.node.variants.edges.some((variant) => variant.node.sku === sku);
+
+            // Increment count if the product contains the SKU
             if (hasMatchingSku) {
                 productIdCount += 1;
             }
@@ -99,48 +86,55 @@ const fetchProductBySku = async (sku) => {
         return productIdCount;
 
     } catch (error) {
-        logMessage(`Error fetching product by SKU: ${error}`);
+        console.error('Error fetching product by SKU:', error);
         return 0; 
     }
 };
 
 async function checkAllSkus(link, outfile) {
-    ensureOutputFile(process.env.OUT_FILE);
+    // create the folder if it doesn't exist
+    if (!fs.existsSync(process.env.OUT_FOLDER)) {
+        fs.mkdirSync(process.env.OUT_FOLDER);
+    }
 
     const products = await fetch_csv_products(link);
 
     const duplicateSkus = [];
-    let skuColumn = "SKU"; 
+    let skuColumn = "SKU"; // Default column to check
 
+    // Check if the first product contains "Variant SKU" to decide which column to use
     if (products[0].hasOwnProperty("Variant SKU")) {
         skuColumn = "Variant SKU";
     }
 
+    // Iterate through the CSV and check each SKU against Shopify
     for (const product of products) {
         const sku = product[skuColumn];
 
         if (!sku) {
-            logMessage('No matching SKU found in the CSV.');
+            logFile('No matching SKU found in the CSV.');
             break;
         }
 
         const skuCount = await fetchProductBySku(sku);
         
         if (skuCount > 1) {
-            logMessage(`Duplicate found: SKU ${sku} has ${skuCount} entries in Shopify.`);
+            logFile(`Duplicate found: SKU ${sku} has ${skuCount} entries in Shopify.`);
             duplicateSkus.push({ sku, count: skuCount });
         }
+        
     }
 
+    // Save the results to a new CSV file
     const csvStream = fs.createWriteStream(outfile);
     csvStream.write('SKU,Count\n'); 
 
     duplicateSkus.forEach(item => {
-        csvStream.write(`${item.sku},${item.count}\n`);
+        csvStream.write(`${item.sku},${item.count}\n`); // Write each SKU and its count
     });
 
     csvStream.end();
 }
 
 // Start the process
-checkAllSkus(process.env.IN_FILE, `${process.env.OUT_FILE}/duplicate_skus.csv`);
+checkAllSkus(process.env.IN_FILE, `${process.env.OUT_FOLDER}/duplicate_skus.csv`);
