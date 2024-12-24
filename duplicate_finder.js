@@ -29,7 +29,7 @@ async function fetch_csv_products(link) {
             })
         );
     } catch (error) {
-        logFile(`Error fetching products: ${error}`);
+        logFile.write(`Error fetching products: ${error}`);
     }
     return products;
 }
@@ -112,14 +112,14 @@ async function checkAllSkus(link, outfile) {
         const sku = product[skuColumn];
 
         if (!sku) {
-            logFile('No matching SKU found in the CSV.');
+            logFile.write('No matching SKU found in the CSV.');
             break;
         }
 
         const skuCount = await fetchProductBySku(sku);
         
         if (skuCount > 1) {
-            logFile(`Duplicate found: SKU ${sku} has ${skuCount} entries in Shopify.`);
+            logFile.write(`Duplicate found: SKU ${sku} has ${skuCount} entries in Shopify.`);
             duplicateSkus.push({ sku, count: skuCount });
         }
         
