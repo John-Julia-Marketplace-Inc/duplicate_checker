@@ -105,7 +105,7 @@ const fetchProductBySku = async (sku) => {
 };
 
 async function checkAllSkus(link, outfile) {
-    ensureOutputFile(outfile);
+    ensureOutputFile(process.env.OUT_FILE);
 
     const products = await fetch_csv_products(link);
 
