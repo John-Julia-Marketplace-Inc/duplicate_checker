@@ -112,7 +112,7 @@ async function checkAllSkus(link, outfile) {
     const duplicateSkus = [];
     let skuColumn = "SKU"; 
 
-    if (products.length > 0 && products[0].hasOwnProperty("Variant SKU")) {
+    if (products[0].hasOwnProperty("Variant SKU")) {
         skuColumn = "Variant SKU";
     }
 
