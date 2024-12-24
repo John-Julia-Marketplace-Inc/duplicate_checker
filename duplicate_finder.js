@@ -98,7 +98,7 @@ async function checkAllSkus(link, outfile) {
     let skuColumn = "SKU"; // Default column to check
 
     // Check if the first product contains "Variant SKU" to decide which column to use
-    if (products.length > 0 && products[0].hasOwnProperty("Variant SKU")) {
+    if (products[0].hasOwnProperty("Variant SKU")) {
         skuColumn = "Variant SKU";
     }
 
@@ -132,4 +132,4 @@ async function checkAllSkus(link, outfile) {
 }
 
 // Start the process
-checkAllSkus(process.env.IN_FILE, `${process.env.OUT_FILE}/duplicate_skus.csv`);
+checkAllSkus(process.env.IN_FILE, `${process.env.OUT_FOLDER}/duplicate_skus.csv`);

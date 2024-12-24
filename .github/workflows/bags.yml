@@ -22,12 +22,12 @@ jobs:
           run: |
             git clone https://${{ secrets.PROFILE_URL }}:${{secrets.PUBLIC_PAT}}@github.com/${{ secrets.BAGS }}.git bags_repo
         
-        # - name: Clone private logs storage
-        #   run: |
-        #     git clone https://${{ secrets.PROFILE_URL }}:${{secrets.PUBLIC_PAT}}@github.com/${{ secrets.DATA_STORAGE }}.git data_storage_repo
+        - name: Clone private logs storage
+          run: |
+            git clone https://${{ secrets.PROFILE_URL }}:${{secrets.PUBLIC_PAT}}@github.com/${{ secrets.DATA_STORAGE }}.git data_storage_repo
         
-        # - name: Install Node.js dependencies 
-        #   run: npm install axios csv-parser dotenv shopify-api-node fs
+        - name: Install Node.js dependencies 
+          run: npm install axios csv-parser dotenv shopify-api-node fs
         
         # - name: Update products
         #   run: node /home/runner/work/duplicate_checker/duplicate_checker/duplicate_finder.js
