@@ -1,0 +1,59 @@
+name: Women belts
+
+on:
+    workflow_dispatch:  
+  
+    schedule:
+      - cron: '0 6 * * *'  # run every day at 6 am
+
+jobs:
+    trigger-public-workflow:
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: write  
+            packages: write  
+
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+        
+        - name: Clone private data storage
+          run: |
+            git clone https://${{ secrets.PROFILE_URL }}:${{secrets.PUBLIC_PAT}}@github.com/${{ secrets.CLOTHES }}.git clothes_repo
+
+        - name: Clone private logs storage
+          run: |
+            git clone https://${{ secrets.PROFILE_URL }}:${{secrets.PUBLIC_PAT}}@github.com/${{ secrets.DATA_STORAGE }}.git data_storage_repo
+        
+        - name: Install Node.js dependencies 
+          run: npm install axios csv-parser dotenv shopify-api-node fs
+        
+        - name: Update products
+          run: node /home/runner/work/duplicate_checker/duplicate_checker/duplicate_finder.js
+          env:
+              SHOP: ${{ secrets.SHOP }}
+              SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+              IN_FILE: 'clothes_repo/clean_data/women_belts/all_skus.csv'
+              OUT_FOLDER: 'data_storage_repo/women_belts/'
+
+        - name: Remove products
+          run: node /home/runner/work/duplicate_checker/duplicate_checker/duplicate_remover.js
+          env:
+            SHOP: ${{ secrets.SHOP }}
+            SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+            OUT_FOLDER: 'data_storage_repo/women_belts/'
+        
+        - name: Commit changes from update.py
+          run: |
+            cd data_storage_repo
+            git config --local user.name "GitHub Action"
+            git config --local user.email "action@github.com"
+            git pull origin master --no-edit
+            git add .
+
+            # Commit changes if there are any
+            git diff --cached --quiet || git commit -m "Commit changes from update.py"
+
+            git push
+  
