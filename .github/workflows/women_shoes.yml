@@ -1,10 +1,10 @@
-name: Men clothes
+name: Women shoes
 
 on:
     workflow_dispatch:  
   
     schedule:
-      - cron: '0 2 * * *'  # run every day at 2 am
+      - cron: '0 3 * * *'  # run every day at 3 am
 
 jobs:
     trigger-public-workflow:
@@ -34,15 +34,15 @@ jobs:
           env:
               SHOP: ${{ secrets.SHOP }}
               SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
-              IN_FILE: 'clothes_repo/clean_data/men_clothing/all_skus.csv'
-              OUT_FOLDER: 'data_storage_repo/men_clothes/'
+              IN_FILE: 'clothes_repo/clean_data/women_shoes/all_skus.csv'
+              OUT_FOLDER: 'data_storage_repo/women_shoes/'
 
         - name: Remove products
           run: node /home/runner/work/duplicate_checker/duplicate_checker/duplicate_remover.js
           env:
             SHOP: ${{ secrets.SHOP }}
             SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
-            OUT_FOLDER: 'data_storage_repo/men_clothes/'
+            OUT_FOLDER: 'data_storage_repo/women_shoes/'
         
         - name: Commit changes from update.py
           run: |
