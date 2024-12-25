@@ -48,13 +48,13 @@ const fetchProductBySku = async (sku) => {
         const response = await shopify.graphql(query);
 
         if (response.errors) {
-            logFile.write('GraphQL Errors:', response.errors);
+            logFile.write(`GraphQL Errors: ${response.errors}\n`);
             return [];
         }
 
         return response.products.edges.map(edge => edge.node);
     } catch (error) {
-        logFile.write('Error fetching product by SKU:', error);
+        logFile.write(`Error fetching product by SKU: ${error}\n`);
         return [];
     }
 };
@@ -101,17 +101,17 @@ const deleteProductById = async (productId) => {
             }
         }
     }`;
-    logFile.write('To delete:', productId)
+    logFile.write(`To delete: ${productId}\n`)
     try {
         const response = await shopify.graphql(mutation);
 
         if (response.errors) {
-            logFile.write('GraphQL Errors:', response.errors);
+            logFile.write(`GraphQL Errors: ${response.errors}\n`);
         } else {
-            logFile.write(`Deleted product with ID: ${productId}`);
+            logFile.write(`Deleted product with ID: ${productId}\n`);
         }
     } catch (error) {
-        logFile.write('Error deleting product:', error);
+        logFile.write(`Error deleting product: ${error}\n`);
     }
 };
 
@@ -130,10 +130,8 @@ async function processDuplicates(link) {
 
         const skuProducts = await fetchProductBySku(sku);
 
-        logFile.write('skuProducts:', skuProducts)
-
         if (skuProducts.length > 1) {
-            logFile.write(`Processing duplicate SKU: ${sku}`);
+            logFile.write(`Processing duplicate SKU: ${sku}\n`);
 
             const bestProduct = selectBestProduct(skuProducts);
 
@@ -147,7 +145,7 @@ async function processDuplicates(link) {
         }
     }
 
-    logFile.write('Duplicate processing complete.');
+    logFile.write('Duplicate processing complete.\n');
 }
 
 // CSV Fetcher
@@ -166,7 +164,7 @@ async function fetch_csv_products(link) {
             })
         );
     } catch (error) {
-        logFile.write(`Error fetching products: ${error}`);
+        logFile.write(`Error fetching products: ${error}\n`);
     }
     return products;
 }
