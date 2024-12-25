@@ -1,4 +1,4 @@
-name: Traverse bags to find duplicates
+name: Traverse women clothes to find duplicates
 
 on:
     workflow_dispatch:  
