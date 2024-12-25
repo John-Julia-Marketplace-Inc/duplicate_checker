@@ -36,6 +36,13 @@ jobs:
               SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
               IN_FILE: 'bags_repo/clean_data/existing_skus.csv'
               OUT_FOLDER: 'data_storage_repo/bags/'
+
+        - name: Remove products
+          run: node /home/runner/work/duplicate_checker/duplicate_checker/duplicate_remover.js
+          env:
+            SHOP: ${{ secrets.SHOP }}
+            SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+            OUT_FOLDER: 'data_storage_repo/bags/'
         
         - name: Commit changes from update.py
           run: |

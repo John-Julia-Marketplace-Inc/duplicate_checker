@@ -29,7 +29,7 @@ async function fetch_csv_products(link) {
             })
         );
     } catch (error) {
-        logFile.write(`Error fetching products: ${error}`);
+        logFile.write(`Error fetching products: ${error}\n`);
     }
     return products;
 }
@@ -60,7 +60,7 @@ const fetchProductBySku = async (sku) => {
         const response = await shopify.graphql(query);
 
         if (response.errors) {
-            console.error('GraphQL Errors:', response.errors);
+            logFile.write(`GraphQL Errors: ${response.errors}\n`);
             return 0; 
         }
 
@@ -86,7 +86,7 @@ const fetchProductBySku = async (sku) => {
         return productIdCount;
 
     } catch (error) {
-        console.error('Error fetching product by SKU:', error);
+        logFile.write('Error fetching product by SKU:', error, '\n');
         return 0; 
     }
 };
@@ -112,14 +112,14 @@ async function checkAllSkus(link, outfile) {
         const sku = product[skuColumn];
 
         if (!sku) {
-            logFile.write('No matching SKU found in the CSV.');
+            logFile.write('No matching SKU found in the CSV.\n');
             break;
         }
 
         const skuCount = await fetchProductBySku(sku);
         
         if (skuCount > 1) {
-            logFile.write(`Duplicate found: SKU ${sku} has ${skuCount} entries in Shopify.`);
+            logFile.write(`Duplicate found: SKU ${sku} has ${skuCount} entries in Shopify.\n`);
             duplicateSkus.push({ sku, count: skuCount });
         }
         

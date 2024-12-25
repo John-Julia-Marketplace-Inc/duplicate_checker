@@ -6,6 +6,9 @@ const stream = require('stream');
 const { promisify } = require('util');
 const fs = require('fs');
 
+
+const logFile = fs.createWriteStream(`${process.env.OUT_FOLDER}/logs_dup.log`, { flags: 'a' });
+
 const pipeline = promisify(stream.pipeline);
 
 const shopify = new Shopify({
@@ -45,13 +48,13 @@ const fetchProductBySku = async (sku) => {
         const response = await shopify.graphql(query);
 
         if (response.errors) {
-            console.error('GraphQL Errors:', response.errors);
+            logFile.write('GraphQL Errors:', response.errors);
             return [];
         }
 
         return response.products.edges.map(edge => edge.node);
     } catch (error) {
-        console.error('Error fetching product by SKU:', error);
+        logFile.write('Error fetching product by SKU:', error);
         return [];
     }
 };
@@ -98,17 +101,17 @@ const deleteProductById = async (productId) => {
             }
         }
     }`;
-    console.log('To delete:', productId)
+    logFile.write('To delete:', productId)
     try {
         const response = await shopify.graphql(mutation);
 
         if (response.errors) {
-            console.error('GraphQL Errors:', response.errors);
+            logFile.write('GraphQL Errors:', response.errors);
         } else {
-            console.log(`Deleted product with ID: ${productId}`);
+            logFile.write(`Deleted product with ID: ${productId}`);
         }
     } catch (error) {
-        console.error('Error deleting product:', error);
+        logFile.write('Error deleting product:', error);
     }
 };
 
@@ -127,10 +130,10 @@ async function processDuplicates(link) {
 
         const skuProducts = await fetchProductBySku(sku);
 
-        console.log('skuProducts:', skuProducts)
+        logFile.write('skuProducts:', skuProducts)
 
         if (skuProducts.length > 1) {
-            console.log(`Processing duplicate SKU: ${sku}`);
+            logFile.write(`Processing duplicate SKU: ${sku}`);
 
             const bestProduct = selectBestProduct(skuProducts);
 
@@ -144,7 +147,7 @@ async function processDuplicates(link) {
         }
     }
 
-    console.log('Duplicate processing complete.');
+    logFile.write('Duplicate processing complete.');
 }
 
 // CSV Fetcher
@@ -163,7 +166,7 @@ async function fetch_csv_products(link) {
             })
         );
     } catch (error) {
-        console.log(`Error fetching products: ${error}`);
+        logFile.write(`Error fetching products: ${error}`);
     }
     return products;
 }
