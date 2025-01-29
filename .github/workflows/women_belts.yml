@@ -3,8 +3,8 @@ name: Women belts
 on:
     workflow_dispatch:  
   
-    schedule:
-      - cron: '0 6 * * *'  # run every day at 6 am
+    # schedule:
+    #   - cron: '0 6 * * *'  # run every day at 6 am
 
 jobs:
     trigger-public-workflow:
