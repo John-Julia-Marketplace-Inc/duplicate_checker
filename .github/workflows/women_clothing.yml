@@ -3,8 +3,8 @@ name: Women clothes
 on:
     workflow_dispatch:  
   
-    schedule:
-      - cron: '0 1 * * *'  # run every day at 1 am
+    # schedule:
+    #   - cron: '0 1 * * *'  # run every day at 1 am
 
 jobs:
     trigger-public-workflow:
