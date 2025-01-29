@@ -3,8 +3,8 @@ name: Men belts
 on:
     workflow_dispatch:  
   
-    schedule:
-      - cron: '0 5 * * *'  # run every day at 5 am
+    # schedule:
+    #   - cron: '0 5 * * *'  # run every day at 5 am
 
 jobs:
     trigger-public-workflow:
